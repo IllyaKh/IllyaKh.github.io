@@ -80,7 +80,7 @@ function collisionDetection() {
                     b.status = 0;
                     score++;
                     if(score == brickRowCount*brickColumnCount) {
-					document.cookie="Hscore="+score;
+					document.cookie="Hiscore="+score;
                         alert("YOU WIN, CONGRATS!");
 						
                         document.location.reload();
@@ -128,7 +128,7 @@ function drawScore() {
     ctx.fillText("Score: "+score, 8, 20);
 }
 function drawHScore() {
-	 var Hscore=document.cookie.split('=')[1];
+	 var Hscore=document.cookie.split("=")[1];
     ctx.font = "16p	x Arial";
     ctx.fillStyle = "yellow";
     ctx.fillText("High Score: "+Hscore, 230, 20);
@@ -174,7 +174,7 @@ function draw() {
         else {
             lives--;
             if(!lives) {
-			document.cookie="Hscore="+score;
+			document.cookie="Hiscore="+score;
                 alert("GAME OVER");
 				
                 document.location.reload();

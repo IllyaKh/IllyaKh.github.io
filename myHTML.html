@@ -141,14 +141,15 @@ function drawLives() {
 function drawStroke()
 {
 ctx.beginPath();
-ctx.lineWidth=5;ч
+ctx.lineWidth=5;
 ctx.strokeStyle="yellow"
 ctx.moveTo(0, 0);
 ctx.lineTo(550, 0);
 ctx.lineTo(550, 600);
 ctx.lineTo(0, 600);
-ctx.closePath();
 ctx.stroke();
+ctx.closePath();
+
 }
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);

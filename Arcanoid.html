@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Canabeast</title>
+	<style>
+    	* { padding: 0; margin: 0; }
+    	canvas { background: black; display: block; margin: 0 auto; 
+    			 border: 2px solid purple;}
+    </style>
+</head>
+<body>
+	<canvas id="myCanvas" width="480" height="480"></canvas>
+	<script>
+		var canvas = document.getElementById("myCanvas");
+		var ctx = canvas.getContext("2d");
+
+		var paddleHeight = 10;
+		var paddleWidth = 70;
+		var x = canvas.width / 2;
+		var y = canvas.height - paddleHeight * 2;
+		var paddleX = (canvas.width - paddleWidth) / 2;
+		var rightPressed = false;
+		var leftPressed = false;
+		var ballRadius = 5;
+		var BrickRowCount = 3;
+		var BrickColumnCount = 5;
+		var BrickWidth = 75;
+		var BrickHeight = 20;
+		var BrickPadding = 10;
+		var BrickOffsetTop = 30;
+		var BrickOffsetLeft = 30;
+		var ColorArr = ["white", "green", "yellow", "blue", "cyan", "red", "pink", "orange"];
+		var paddleColorChange = Math.round(Math.random() * ColorArr.length);
+		var ballColorChange = Math.round(Math.random() * ColorArr.length);
+		var score = 0;
+		var img = new Image();
+		img.src = "http://subclub.co.uk/wp-content/uploads/2016/01/Galaxia-y-Espacio-Exterior-480x360.jpg";
+
+		function random(min, max) {
+ 			return Math.random() * (max - min) + min;
+		}
+		var dx = random(-1.5, 1.5);
+		var dy = random(-1.5, -0.4);
+		var lives = Math.round(random(3, 5));
+
+		var bricks = [];
+		for (c = 0; c < BrickColumnCount; c++) 
+		{
+			bricks[c] = [];
+			for (r = 0; r < BrickRowCount; r++) 
+			{
+				bricks[c][r] = { x:0, y:0, status:1 },
+				bricks[c][r].x = (c * (BrickWidth + BrickPadding)) + BrickOffsetLeft;
+				bricks[c][r].y = (r * (BrickHeight + BrickPadding)) + BrickOffsetTop;
+				bricks[c][r].color = ColorArr[Math.round(Math.random() * ColorArr.length)];
+			}
+		}
+
+		function drawBricks() 
+		{
+			for (r = 0; r < BrickRowCount; r++)
+			{
+				for (c = 0; c < BrickColumnCount; c++)
+				{
+					var b = bricks[c][r];
+					if (b.status == 1)
+					{
+						ctx.beginPath();
+						ctx.rect(b.x, b.y, BrickWidth, BrickHeight);
+						ctx.fillStyle = bricks[c][r].color;
+						ctx.fill();
+						ctx.closePath();
+					}
+				}
+			}
+		}
+
+		function collisionDetection()
+		{
+			for (r = 0; r < BrickRowCount; r++)
+			{
+				for (c = 0; c < BrickColumnCount; c++)
+				{
+					var b = bricks[c][r];
+					if (x - ballRadius > b.x && x - ballRadius < (b.x + BrickWidth) 
+						&& y - ballRadius > b.y && y - ballRadius < (b.y + BrickHeight) 
+						&& b.status == 1)
+					{
+						score++;
+						dy = -dy;
+						b.status = 0;
+						if (score == (BrickColumnCount * BrickRowCount))
+						{
+							alert("You Won!\nCongratulations!");
+							document.location.reload();
+						}
+					}
+				}
+			}
+		}
+
+		function drawPaddle(paddleColor)
+		{
+			ctx.beginPath();
+			ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
+			ctx.fillStyle = paddleColor;
+ 		   	ctx.fill();
+			ctx.closePath();
+		}
+
+		function drawBall(ballColor)
+		{
+			ctx.beginPath();
+			ctx.arc(x, y, ballRadius, 0, Math.PI*2, false);
+			ctx.fillStyle = ballColor;
+ 		   	ctx.fill();
+  			ctx.closePath();
+		}
+
+		function drawScore()
+		{
+			ctx.font = "20px Vladimir Script";
+			ctx.fillStyle = "Cyan";
+			ctx.fillText("Score: "+score, 8, 20);
+		}
+
+		function drawLives()
+		{
+			ctx.font = "20px Verdana";
+			ctx.fillStyle = "Orange";
+			ctx.fillText("Lives: " + lives, canvas.width - 85, 20);
+		}
+
+		function draw() 
+		{
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+			collisionDetection();
+			drawBricks();
+			drawBall(ColorArr[ballColorChange]);
+			drawPaddle(ColorArr[paddleColorChange]);
+			drawScore();
+			drawLives();
+ 		  	if (rightPressed) paddleX += 1; if (leftPressed) paddleX -= 1;
+ 		  	if (paddleX <= 0) paddleX = 0;
+ 		  	if (paddleX >= canvas.width - paddleWidth) paddleX = canvas.width - paddleWidth;  
+  		    if (y + dy > canvas.height - paddleHeight - ballRadius) 
+  		    {
+ 				if (x + dx > paddleX && x + dx < paddleX + paddleWidth)
+ 				{ 
+ 					ballColorChange = Math.round(Math.random() * ColorArr.length);
+ 					paddleColorChange = Math.round(Math.random() * ColorArr.length);
+ 					dy = -dy; 
+ 				}
+ 			}
+ 			if (y + dy >= canvas.height - ballRadius) 
+ 			{
+ 				lives--; 
+ 				alert("You've lost a life!");
+ 				if (!lives) 
+ 				{
+ 					alert("Game over!");
+ 					document.location.reload();
+ 				}
+ 				x = canvas.width / 2;
+				y = canvas.height - paddleHeight * 2;
+				dx = dx;
+				dy = -dy;
+				paddleX = (canvas.width - paddleWidth) / 2;
+			}
+  		  	if (x + dx < ballRadius || x + dx >= canvas.width - ballRadius) dx = -dx;
+			if (y + dy < ballRadius || y + dy >= canvas.height - ballRadius) dy = -dy;
+			x += dx;
+ 			y += dy;
+		}
+		document.addEventListener("keyup", keyUpHandler, false);
+		document.addEventListener("keydown", keyDownHandler, false);
+		document.addEventListener("mousemove", mouseMoveHandler, false);
+		function mouseMoveHandler(e) 
+		{
+			var relativeX = e.clientX - canvas.offsetLeft;
+			if ((relativeX >= 0) && (relativeX < canvas.width))
+				paddleX = relativeX - paddleWidth / 2;
+		}
+		function keyDownHandler(e) 
+		{
+			if (e.keyCode == 39) rightPressed = true;
+			else if (e.keyCode == 37) leftPressed = true;
+		}
+		function keyUpHandler(e) 
+		{
+			if (e.keyCode == 39) rightPressed = false;
+			else if (e.keyCode == 37) leftPressed = false;
+		}
+		setInterval(draw, 1);
+	</script>
+</body>
+</html>
